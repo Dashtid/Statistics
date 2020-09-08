@@ -5,8 +5,8 @@ library(ggpubr)
 library(dbplyr)
 
 # Setting Working Directory
-setwd("/Den stora KTH mappen/CM2003 - Statistics in Medical Engineering/Seminar 1")      # Laptop
-# setwd("/Skola/KTH/CM2009 - Statistics in Medical Engineering/Seminarium/Seminar 1/Data")   # Desktop
+#setwd("/Den stora KTH mappen/CM2003 - Statistics in Medical Engineering/Seminar 1")      # Laptop
+setwd("/Skola/KTH/CM2009 - Statistics in Medical Engineering/Seminarium/Seminar 1/Data")   # Desktop
 
 # Reading in countrate data and attaching the headers to corresponding column
 count_rate = read.table("countrate_data.csv",sep = ";", header=TRUE)
@@ -35,7 +35,7 @@ pois = dpois(time, poisson$estimate[1])
 norm = dnorm(time, normal$estimate[1], normal$estimate[2])
 
 # Creating histogram and plotting it along with Poisson and Gaussian distributions
-hist(countRate,breaks=20,prob=TRUE,
+hist = hist(countRate,breaks=20,prob=TRUE,
      main = "Count Rate Experiment",
      xlab = "Count Rate",
      ylab = "Density")
@@ -112,11 +112,11 @@ sprintf("Probability of getting 15 cps is: %f with according to Poisson model", 
 # --- Task 1 G --- #
 
 # Chi-squared test to test goodness of the fit
-pois_goodness_data = dpois(11:30,fitP$estimate[1])
-norm_goodness_data = dnorm(11:30,fitN$estimate[1],fitN$estimate[2])
+pois_goodness_data = dpois(11:30, poisson$estimate[1])
+norm_goodness_data = dnorm(11:30, normal$estimate[1],normal$estimate[2])
 
-chisq.test(histo$counts,p=pois_goodness_data, rescale.p=TRUE, simulate.p.value=TRUE)
-chisq.test(histo$counts,p=norm_goodness_data, rescale.p=TRUE, simulate.p.value=TRUE)
+chisq.test(hist$counts,p=pois_goodness_data, rescale.p=TRUE, simulate.p.value=TRUE)
+chisq.test(hist$counts,p=norm_goodness_data, rescale.p=TRUE, simulate.p.value=TRUE)
 
 # Doing a qq-test to check the performance of fit
 ggqqplot(countRate)
@@ -143,7 +143,7 @@ hist(countRate10savg,breaks=66,prob=TRUE,
      main = "Count Rate 10s",
      xlab = "Count Rate",
      ylab = "Density")
-lines(pois_10s,type="l",col="green",lwd=3,)
+lines(pois_10s,type="p",col="green",lwd=3,)
 lines(norm_10s,type="l",col="red",lwd=3,)
 legend("topright",
        legend = c("Poisson","Gaussian"),

@@ -5,8 +5,8 @@ library(ggpubr)
 library(dbplyr)
 
 # Setting Working Directory
-setwd("/Den stora KTH mappen/CM2003 - Statistics in Medical Engineering/Seminar 1")      # Laptop
-# setwd("/Skola/KTH/CM2009 - Statistics in Medical Engineering/Seminarium/Seminar 1/Data")   # Desktop
+#setwd("/Den stora KTH mappen/CM2003 - Statistics in Medical Engineering/Seminar 1")      # Laptop
+setwd("/Skola/KTH/CM2009 - Statistics in Medical Engineering/Seminarium/Seminar 1/Data")   # Desktop
 
 # --- Main --- #
 
@@ -55,3 +55,4 @@ t.test(V3 ~ V2)  # p = 0.04214
 linmodel = lm(V3 ~ V2) 
 summary(linmodel) # p = 0.05775
 confint(linmodel) # confint = [-1.4  0.02]
+

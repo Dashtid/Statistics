@@ -5,8 +5,8 @@ library(ggpubr)
 library(dbplyr)
 
 # Setting Working Directory
-setwd("/Den stora KTH mappen/CM2003 - Statistics in Medical Engineering/Seminar 1")      # Laptop
-# setwd("/Skola/KTH/CM2009 - Statistics in Medical Engineering/Seminarium/Seminar 1/Data")   # Desktop
+#setwd("/Den stora KTH mappen/CM2003 - Statistics in Medical Engineering/Seminar 1")      # Laptop
+setwd("/Skola/KTH/CM2009 - Statistics in Medical Engineering/Seminarium/Seminar 1/Data")   # Desktop
 
 # --- Main --- #
 
@@ -44,3 +44,4 @@ plot(densdiff, main="Density function for differences of before and after data")
 
 # Shapiro-Wilk Normality Test
 shapiro.test(diff)
+

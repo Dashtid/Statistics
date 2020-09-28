@@ -1,14 +1,17 @@
 # --- Preparation --- #
+
+# Reading in necessary libraries
 library(mle4)
 library(jtools)
 library(lmerTest)
 library(ggplot2)
 library(ggeffects)
+library("ggpubr")
 
 # Setting Working Directory
-setwd("D:/Skola/KTH/CM2009 - Statistics in Medical Engineering/Git/Data")
+setwd("...")
 
-# Reading in required libraries
+# Reading in data
 oncdata = read.csv(file = "oncdata.csv", head = TRUE , sep=",")
 attach(oncdata)
 
@@ -17,30 +20,30 @@ attach(oncdata)
 
 # ----------- Task 4 ----------- #
 
+# Showing both Stage and Treatment
 
-# Creating model of how TumourSize depens on Months passed
-basic.lm <- lm(TumourSize ~ Months, data = oncdata)
-summary(basic.lm)
+boxplot(TumourSize ~ Months) # Tumors are increasing
+boxplot(TumourSize ~ Months + Treatment + Stage)
 
-# Plotting said model
-(prelim_plot <- ggplot(oncdata, aes(x = Months, y = TumourSize)) +
-    geom_point() +
-    geom_smooth(method = "lm"))
+boxplot(TumourSize ~ Months, data = oncdata[oncdata$Treatment == 1,]) # increasing less (6.8 - 8-8)
+boxplot(TumourSize ~ Months, data = oncdata[oncdata$Treatment == 0,]) # increasing more (7 - 10.5)
 
-# Plotting the residuals
-plot(basic.lm, which = 1)
+boxplot(TumourSize ~ Months, data = oncdata[oncdata$Stage == 1,]) # increasing more (7.5 - 10.5)
+boxplot(TumourSize ~ Months, data = oncdata[oncdata$Stage == 0,]) # increasing less (6.8 - 9)
 
-# Showing that both Stage and Treatment
-boxplot(TumourSize ~ Stage , data = oncdata)
-boxplot(TumourSize ~ Treatment, data = oncdata)
+boxplot(TumourSize ~ Months + Treatment, data = oncdata[oncdata$Stage == 0,])
+boxplot(TumourSize ~ Months + Treatment, data = oncdata[oncdata$Stage == 1,])
 
-# Showing tha subject is an independent variable which we need to control for
+# Showing subject data
 boxplot(TumourSize ~ Subject, data = oncdata)
+hist(TumourSize, 40)
 
-# Mixed-effects model
-fit1_model = lmer(TumourSize ~ 1 + Months + Treatment + ( 1 | Stage/Subject)  , data = oncdata)
+# Mixed-effects models
+fit1_model = lmer(TumourSize ~ 1 + Months + Treatment + (1|Stage) + ( 1 | Subject)  , data = oncdata)
 fit2_model = lmer(TumourSize ~  1 + Months + Treatment + Stage + ( 1 | Subject)  , data = oncdata)
-fit2_model_reduced = lmer(TumourSize ~  1 + Months + Treatment + (1 | Subject)  , data = oncdata)
+fit3_model = lmer(TumourSize ~  1 + Months + Treatment + Months:Treatment + (1 | Subject)  , data = oncdata)
+fit4_model = lmer(TumourSize ~  1 + Months + Treatment + Stage + Months:Treatment + (1 | Subject)  , data = oncdata)
+fit5_model = lmer(TumourSize ~  1 + Months + Stage + Months:Treatment + (1 | Subject)  , data = oncdata)
 
 # --- SUMMARIES --- #
 
@@ -54,99 +57,25 @@ summary(fit2_model) # default lme4
 summ(fit2_model)    # jtools
 ranova(fit2_model)  # lmerTest
 
-# Model 2 reduced
-summary(fit2_model_reduced) # default lme4
-summ(fit2_model_reduced)    # jtools
-ranova(fit2_model_reduced)  # lmerTest
+# Model 3
+summary(fit3_model) # default lme4
+summ(fit3_model)    # jtools
+ranova(fit3_model)  # lmerTest
 
-anova(fit1_model, fit2_model, fit2_model_reduced)  
+# Model 4
+summary(fit4_model) # default lme4
+summ(fit4_model)    # jtools
+ranova(fit4_model)  # lmerTest
 
+# Model 5
+summary(fit5_model) # default lme4
+summ(fit5_model)    # jtools
+ranova(fit5_model)  # lmerTest
 
-# ------ TOGETHER ------ #
-
-# Model 1
-(fit1_plot <- ggplot(oncdata, aes(x = Months, y = TumourSize)) +
-    geom_point(alpha = 0.5) +
-    theme_classic() +
-    geom_line(data = cbind(oncdata, pred = predict(fit1_model)),
-              aes(y = pred), size = 1) +  # adding predicted line from mixed model 
-    theme(legend.position = "none",
-          panel.spacing = unit(2, "lines"))  # adding space between panels
-)
-
-# Model 2
-(fit2_plot <- ggplot(oncdata, aes(x = Months, y = TumourSize)) +
-    geom_point(alpha = 0.5) +
-    theme_classic() +
-    geom_line(data = cbind(oncdata, pred = predict(fit2_model)),
-              aes(y = pred), size = 1) +  # adding predicted line from mixed model 
-    theme(legend.position = "none",
-          panel.spacing = unit(2, "lines"))  # adding space between panels
-)
-
-# Model 2 reduced
-(fit2_reduced_plot <- ggplot(oncdata, aes(x = Months, y = TumourSize)) +
-        geom_point(alpha = 0.5) +
-        theme_classic() +
-        geom_line(data = cbind(oncdata, pred = predict(fit2_model_reduced)),
-                  aes(y = pred), size = 1) +  # adding predicted line from mixed model 
-        theme(legend.position = "none",
-              panel.spacing = unit(2, "lines"))  # adding space between panels
-)
-
-# ---- FACET_WRAP ---- #
-
-# Model 1
-(fit1_plot <- ggplot(oncdata, aes(x = Months, y = TumourSize, colour = Stage)) +
-    facet_wrap(~Treatment, nrow=2) +   # a panel for Stage of Cancer
-    geom_point(alpha = 0.5) +
-    theme_classic() +
-    geom_line(data = cbind(oncdata, pred = predict(fit1_model)),
-              aes(y = pred), size = 1) +  # adding predicted line from mixed model 
-    theme(legend.position = "none",
-          panel.spacing = unit(2, "lines"))  # adding space between panels
-)
-
-# Model 2
-(fit2_plot <- ggplot(oncdata, aes(x = Months, y = TumourSize, colour = Stage)) +
-    facet_wrap(~Treatment, nrow=2) +   # a panel for Stage of Cancer
-    geom_point(alpha = 0.5) +
-    theme_classic() +
-    geom_line(data = cbind(oncdata, pred = predict(fit2_model)),
-              aes(y = pred), size = 1) +  # adding predicted line from mixed model 
-    theme(legend.position = "none",
-          panel.spacing = unit(2, "lines"))  # adding space between panels
-)
-
-# Model 2 reduced
-(fit2_plot <- ggplot(oncdata, aes(x = Months, y = TumourSize, colour = Stage)) +
-        facet_wrap(~Treatment, nrow=2) +   # a panel for Stage of Cancer
-        geom_point(alpha = 0.5) +
-        theme_classic() +
-        geom_line(data = cbind(oncdata, pred = predict(fit2_model_reduced)),
-                  aes(y = pred), size = 1) +  # adding predicted line from mixed model 
-        theme(legend.position = "none",
-              panel.spacing = unit(2, "lines"))  # adding space between panels
-)
+# Doing an ANOVA test
+anova(fit1_model, fit2_model, fit3_model, fit4_model, fit5_model)  
 
 
-# --- PLotting predictions --- #
+# Plotting the residuals of best model
+plot(fit4_model, which = 1)
 
-# Extract the prediction data frame
-pred_fit2 = ggpredict(fit2_model, terms = c("Months"))  # this gives overall predictions for the model
-
-
-# Plot the predictions 
-
-(ggplot(pred_fit2) + 
-        geom_line(aes(x = x, y = predicted)) +          # slope
-        geom_ribbon(aes(x = x, ymin = predicted - std.error, ymax = predicted + std.error), 
-                    fill = "lightgrey", alpha = 0.5) +  # error band
-        geom_point(data = oncdata,                      # adding the raw data 
-                   aes(x = Months, y = TumourSize, colour = Stage)) + 
-        labs(x = "Months passed", y = "Tumours Size", 
-             title = "lorem ipsum...") +
-        theme()
-)
-summary(pred_fit2)
-summary(fit2_model)

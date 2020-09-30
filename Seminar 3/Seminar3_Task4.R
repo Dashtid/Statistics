@@ -9,7 +9,7 @@ library(ggeffects)
 library("ggpubr")
 
 # Setting Working Directory
-setwd("...")
+setwd("D:/Skola/KTH/CM2009 - Statistics in Medical Engineering/Git/Data")
 
 # Reading in data
 oncdata = read.csv(file = "oncdata.csv", head = TRUE , sep=",")

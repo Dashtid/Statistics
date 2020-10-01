@@ -1,15 +1,17 @@
 # --- Preparation --- #
 
+# Forcing install of effsize package
 if(!require(effsize)){install.packages("effsize")}
 
 # Reading in necessary libraries
 library(effsize)
-
+library(irr)
+library(MASS)
 
 # Setting Working Directory
-setwd("D:/Skola/KTH/CM2009 - Statistics in Medical Engineering/Git/Data")
+setwd("...")
 
-# Creating two datasets
+# Creating two data sets
 kidneydata_raw = read.delim("kidneydata.txt")
 kidneydata_altered = read.delim("kidneydata.txt")
 
@@ -19,13 +21,13 @@ kidneydata_altered = read.delim("kidneydata.txt")
 # after: Measurement after contrast injection
 
 
-# The measurements before and after is in a scale inbetween 1-5
+# The measurements before and after is in a scale between 1-5
 # ---------------------------- #
-# 1: tumour certainly not present  
-# 2: tumour probably not present
+# 1: tumor certainly not present  
+# 2: tumor probably not present
 # 3: inconclusive
-# 4: tumour probably present
-# 5: tumour certainly present
+# 4: tumor probably present
+# 5: tumor certainly present
 # ---------------------------- #
 
 # Quick look at the data
@@ -77,6 +79,8 @@ kidneydata_altered$after
 # 1: Tumor certainly present or not present
 # 2: Tumor maybe present or not present
 # 3: Inconclusive
+# ---------- #
+
 
 # -- BEFORE -- #
 hist(kidneydata_altered$before,
@@ -92,39 +96,12 @@ hist(kidneydata_altered$after,
      ylim = c(0, 25),
      xlab = "Ranging from 0 being very confident and 3 being inconclusive" )
 
-hist(x, breaks = "Sturges",
-     freq = NULL, probability = !freq,
-     include.lowest = TRUE, right = TRUE,
-     density = NULL, angle = 45, col = "lightgray", border = NULL,
-     main = paste("Histogram of" , xname),
-     xlim = range(breaks), ylim = NULL,
-     xlab = xname, ylab,
-     axes = TRUE, plot = TRUE, labels = FALSE,
-     nclass = NULL, warn.unused = TRUE, ...)
 
-kidneydata_altered$before = factor(kidneydata_altered$before, ordered = TRUE, levels = c(1,2,3,4,5))
+# Changing into long format
+longdata = gather(kidneydata_altered, contrast, values, before:after)
+attach(longdata)
 
-kidneydata_altered$after = factor(kidneydata_altered$after, ordered = TRUE, levels = c(1,2,3,4,5))
-
-levels(kidneydata_altered$before) = c(1,2,3,4,5)
-kidneydata_altered
-
-Dragons$SizeRank.f = factor(Dragons$SizeRank,
-                            ordered = TRUE,
-                            levels = c(1, 2, 3, "4", "5", "6", "7"))
+# --- Wilcoxon signed-rank test  --- #
+wilcox.test(kidneydata_altered$after, kidneydata_altered$before, paired=TRUE, data=kidneydata_altered)
 
 
-
-
-cliff.delta(kidneydata_altered$before, kidneydata_altered$after)
-
-# delta estimate: -0.08111111 (negligible)
-
-###  the probability of an observation in B being larger than
-###  an observation in A.
-
-table(kidneydata)
-plot(kidneydata)
-hist(before)
-hist(after)
-hist(after - before)

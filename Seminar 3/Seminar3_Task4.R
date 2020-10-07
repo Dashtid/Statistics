@@ -25,13 +25,13 @@ attach(oncdata)
 boxplot(TumourSize ~ Months) # Tumors are increasing
 boxplot(TumourSize ~ Months + Treatment + Stage)
 
-boxplot(TumourSize ~ Months, data = oncdata[oncdata$Treatment == 1,]) # increasing less (6.8 - 8-8)
+boxplot(TumourSize ~ Months, data = oncdata[oncdata$Treatment == 1,], col = "cyan") # increasing less (6.8 - 8-8)
 boxplot(TumourSize ~ Months, data = oncdata[oncdata$Treatment == 0,]) # increasing more (7 - 10.5)
 
 boxplot(TumourSize ~ Months, data = oncdata[oncdata$Stage == 1,]) # increasing more (7.5 - 10.5)
 boxplot(TumourSize ~ Months, data = oncdata[oncdata$Stage == 0,]) # increasing less (6.8 - 9)
 
-boxplot(TumourSize ~ Months + Treatment, data = oncdata[oncdata$Stage == 0,])
+boxplot(TumourSize ~ Months + Treatment, data = oncdata[oncdata$Stage == 0,] , col = "cyan")
 boxplot(TumourSize ~ Months + Treatment, data = oncdata[oncdata$Stage == 1,])
 
 # Showing subject data
@@ -43,7 +43,6 @@ fit1_model = lmer(TumourSize ~ 1 + Months + Treatment + (1|Stage) + ( 1 | Subjec
 fit2_model = lmer(TumourSize ~  1 + Months + Treatment + Stage + ( 1 | Subject)  , data = oncdata)
 fit3_model = lmer(TumourSize ~  1 + Months + Treatment + Months:Treatment + (1 | Subject)  , data = oncdata)
 fit4_model = lmer(TumourSize ~  1 + Months + Treatment + Stage + Months:Treatment + (1 | Subject)  , data = oncdata)
-fit5_model = lmer(TumourSize ~  1 + Months + Stage + Months:Treatment + (1 | Subject)  , data = oncdata)
 
 # --- SUMMARIES --- #
 
@@ -67,13 +66,9 @@ summary(fit4_model) # default lme4
 summ(fit4_model)    # jtools
 ranova(fit4_model)  # lmerTest
 
-# Model 5
-summary(fit5_model) # default lme4
-summ(fit5_model)    # jtools
-ranova(fit5_model)  # lmerTest
 
 # Doing an ANOVA test
-anova(fit1_model, fit2_model, fit3_model, fit4_model, fit5_model)  
+anova(fit1_model, fit2_model, fit3_model, fit4_model)  
 
 
 # Plotting the residuals of best model
